@@ -14,7 +14,6 @@ using json = nlohmann::json;
 using namespace std;
 using namespace Eigen;
 
-
 // For converting back and forth between radians and degrees.
 constexpr double pi() { return M_PI; }
 double deg2rad(double x) { return x * pi() / 180; }
@@ -47,8 +46,7 @@ double polyeval(Eigen::VectorXd coeffs, double x) {
 // Fit a polynomial.
 // Adapted from
 // https://github.com/JuliaMath/Polynomials.jl/blob/master/src/Polynomials.jl#L676-L716
-Eigen::VectorXd polyfit(Eigen::VectorXd xvals, Eigen::VectorXd yvals,
-                        int order) {
+Eigen::VectorXd polyfit(Eigen::VectorXd xvals, Eigen::VectorXd yvals, int order) {
   assert(xvals.size() == yvals.size());
   assert(order >= 1 && order <= xvals.size() - 1);
   Eigen::MatrixXd A(xvals.size(), order + 1);
@@ -56,7 +54,6 @@ Eigen::VectorXd polyfit(Eigen::VectorXd xvals, Eigen::VectorXd yvals,
   for (int i = 0; i < xvals.size(); i++) {
     A(i, 0) = 1.0;
   }
-
   for (int j = 0; j < xvals.size(); j++) {
     for (int i = 0; i < order; i++) {
       A(j, i + 1) = A(j, i) * xvals(j);
@@ -70,12 +67,9 @@ Eigen::VectorXd polyfit(Eigen::VectorXd xvals, Eigen::VectorXd yvals,
 
 int main() {
   uWS::Hub h;
-
   // MPC is initialized here!
   MPC mpc;
-
-  h.onMessage([&mpc](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
-                     uWS::OpCode opCode) {
+  h.onMessage([&mpc](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
     // The 2 signifies a websocket event
@@ -94,24 +88,20 @@ int main() {
           const double py = j[1]["y"];
           const double psi = j[1]["psi"];
           const double v_raw = j[1]["speed"]; 
-          const double v = v_raw * 0.447;// m/s
+          const double v = v_raw * 0.447;// mph to m/s
           const double steering_angle = j[1]["steering_angle"];
           const double throttle = j[1]["throttle"];
           
           const int N = ptsx.size(); // Number of waypoints
-          /*
-          * TODO: Calculate steeering angle and throttle using MPC.
-          *
-          * Both are in between [-1, 1].
-          *
-          */
-          
-          const double dt = 0.1;
-          const double Lf = 2.67;
-          
           const double cospsi = cos(-psi);
           const double sinpsi = sin(-psi);
-          
+          /*
+          * Calculate steeering angle and throttle using MPC.
+          * Both are in between [-1, 1].
+          */
+          const double dt = DT;
+          const double Lf = LF;
+
           // Convert to the vehicle coordinate system
           VectorXd x_veh(N);
           VectorXd y_veh(N);
@@ -123,7 +113,6 @@ int main() {
           }
           
           auto coeffs = polyfit(x_veh, y_veh, 3); // Fit waypoints
-          
           const double cte = coeffs[0];
           const double epsi = -atan(coeffs[1]); //-f'(0)
           
@@ -137,15 +126,12 @@ int main() {
           const double epsi_act = epsi + psi_act; 
           VectorXd state(6);
           state << px_act, py_act, psi_act, v_act, cte_act, epsi_act;
-          
           vector<double> mpc_results = mpc.Solve(state, coeffs);
           
-          double steer_value = mpc_results[0]/ deg2rad(25);
+          double steer_value = mpc_results[0]/ deg2rad(25); // convert to [-1..1] range
           double throttle_value = mpc_results[1];
 
           json msgJson;
-          // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
-          // Otherwise the values will be in between [-deg2rad(25), deg2rad(25] instead of [-1, 1].
           msgJson["steering_angle"] = -steer_value;
           msgJson["throttle"] = throttle_value;
 
@@ -154,25 +140,20 @@ int main() {
           // the points in the simulator are connected by a Green line
           vector<double> mpc_x_vals = mpc.mpc_x;
           vector<double> mpc_y_vals = mpc.mpc_y;
-
           msgJson["mpc_x"] = mpc_x_vals;
           msgJson["mpc_y"] = mpc_y_vals;
 
           //Display the waypoints/reference line
-          vector<double> next_x_vals;
-          vector<double> next_y_vals;
-
           //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
           // the points in the simulator are connected by a Yellow line
-          
+          vector<double> next_x_vals;
+          vector<double> next_y_vals;
           for(int i = 0; i<ptsx.size();i++){
             next_x_vals.push_back(x_veh[i]);
             next_y_vals.push_back(y_veh[i]);
           }
-          
           msgJson["next_x"] = next_x_vals;
           msgJson["next_y"] = next_y_vals;
-
 
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
           //std::cout << msg << std::endl;
@@ -197,8 +178,7 @@ int main() {
   });
 
   // We don't need this since we're not using HTTP but if it's removed the
-  // program
-  // doesn't compile :-(
+  // program doesn't compile :-(
   h.onHttpRequest([](uWS::HttpResponse *res, uWS::HttpRequest req, char *data,
                      size_t, size_t) {
     const std::string s = "<h1>Hello world!</h1>";
