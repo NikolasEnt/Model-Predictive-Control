@@ -1,9 +1,56 @@
-# CarND-Controls-MPC
-Self-Driving Car Engineer Nanodegree Program
+# CarND Controls MPC
+### Udacity Self-Driving Car Engineer Nanodegree. Project: Model Predictive Control
+This Project is the tenth task of the Udacity Self-Driving Car Nanodegree program. The main goal of the project is to implement in C++ Model Predictive Control to drive the car around the track. The program uses a simple Global Kinematic Model. Parameters were tuned in order to reach maximal speed.
+
+![Title animation](readme_img/title.gif)
+
+**Result**: [YouTube video](https://www.youtube.com/watch?v=78nbaHPg-zg)
+
+The project was created with the Udacity [Starter Code](https://github.com/udacity/CarND-MPC-Project) and [Simulator](https://github.com/udacity/self-driving-car-sim/releases) v1.4. 
 
 ---
 
+## Model
+
+A simple Kinematic model (ignores tire forces, gravity, mass, etc) was used for the Controller. Some attempts to build more complicated dynamic model were made, but with low success. It is essential to know parameters of the vehicle (such as law of response on the throttle, geometry of the car, drag model, tires properties, etc) to construct a reasonable dynamic model but such parameters are not derectly accessible from provided materials for the project. 
+
+Position (_x,y_), heading (_ψ_) and velocity (_v_) form the vehicle state vector:
+
+State: _[x,y,ψ,v]_
+
+![State](readme_img/state.png)
+
+There are two actuators. Stearing angle (_δ_) is the first one, it should be in range [-25,25] deg. For simplicity the throttle and brake represented as a singular actuator (_a_), with negative values signifying braking and positive values signifying acceleration. It should be in range [-1,1].
+
+Actuators: _[δ,a]_
+
+The kinematic model can predict the state on the next time step by taking into account the current state and actuators as follows:
+
+![Kinematic model](readme_img/eq1.png)
+
+where Lf measures the distance between the front of the vehicle and its center of gravity. The parameter was provided by Udacity.
+
+Errors: cross track error (_cte_) and _ψ_ error (_eψ_) were used to build the cost function for the MPC. They could be updated on a new time step using the following equationts:
+
+![Erroers update model](readme_img/eq2.png)
+
+## MPC
+
+One of the most important tasks was to tune parameters of the cost function and other parameters for the Model Predictive Controller.
+
+First of all, data about waypoints was transformed into the vehicle space and a 3d order polynomial was fitted to the data. Actual state of the vehicle was "shifted" into the future by 100 ms latency. It helps to reduce negative effects of the latency and increase stability of the controller. The latency was introduced to simulate real delay of a human driver or physical actuators in case of a self driving car. Cross track error and orientation error were calculated, is then they were passed into the MPC routine.
+
+The time horizon (_T_) was chosen to 2 s after experiments. It was shown that the MPC could drive safely around the track with _T_ = 1 s, but on a slow speed. Higher speed requires more future information to make smart decisions in serial turns. Time step duration (_dt_) was setted equal to the latancy of the simulation (0.1 s), hense, 20 time steps (_N_) was used.
+
+The cost function parameters were tuned by try-and-error method. All these parameters are stored in the `src/MPC.h` file. They were tuned in order to reach maximal speed and agressive race style with use of the whole width of the road and breaking before turns. 
+
+## Hardware 
+
+It was noticed that performance and quality of the controller strongly depend on computational power of your hardware. The MPC involves intense calculations during optimisation, that is why, weak PC can cause some problems due to extra latency. The project was developed and run on an AMD A8-5500 cpu with 16 GB of RAM. Simulator was setted to use 640x480 px resolution and the "Fastest" graphical quality preset.
+
 ## Dependencies
+
+The project was build under environment provided by the Udacity [Docker container](https://hub.docker.com/r/udacity/carnd_mpc/). 
 
 * cmake >= 3.5
  * All OSes: [click here for installation instructions](https://cmake.org/install/)
@@ -41,6 +88,12 @@ Self-Driving Car Engineer Nanodegree Program
 * Simulator. You can download these from the [releases tab](https://github.com/udacity/self-driving-car-sim/releases).
 * Not a dependency but read the [DATA.md](./DATA.md) for a description of the data sent back from the simulator.
 
+
+## Content of this repo
+
+- `src/main.cpp` the main code for the project includes communication with the Simulator and data preprocessing
+- `src/MPC.cpp` the MPC implementation
+- `src/MPC.h` MPC parameters
 
 ## Basic Build Instructions
 
