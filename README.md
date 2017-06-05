@@ -28,9 +28,9 @@ The kinematic model can predict the state on the next time step by taking into a
 
 ![Kinematic model](readme_img/eq1.png)
 
-where Lf measures the distance between the front of the vehicle and its center of gravity. The parameter was provided by Udacity.
+where _Lf_ measures the distance between the front of the vehicle and its center of gravity. The parameter was provided by Udacity.
 
-Errors: cross track error (_cte_) and _ψ_ error (_eψ_) were used to build the cost function for the MPC. They could be updated on a new time step using the following equationts:
+Errors: cross track error (_cte_) and _ψ_ error (_eψ_) were used to build the cost function for the MPC. They could be updated on a new time step using the following equations:
 
 ![Erroers update model](readme_img/eq2.png)
 
@@ -46,7 +46,7 @@ The cost function parameters were tuned by try-and-error method. All these param
 
 ## Hardware 
 
-It was noticed that performance and quality of the controller strongly depend on computational power of your hardware. The MPC involves intense calculations during optimisation, that is why, weak PC can cause some problems due to extra latency. The project was developed and run on an AMD A8-5500 cpu with 16 GB of RAM. Simulator was setted to use 640x480 px resolution and the "Fastest" graphical quality preset.
+It was noticed that performance and quality of the controller strongly depend on computational power of your hardware. The MPC involves intense calculations during optimisation, that is why, weak PC can cause some problems due to extra latency. The project was developed and run on an AMD A8-5500 cpu with 16 GB of RAM. Simulator was setted to use 640x480 px resolution and the "Fastest" graphical quality preset. In case of higher resolution or quality of graphics the controller prone to bad behaviour. 
 
 ## Dependencies
 
