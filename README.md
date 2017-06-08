@@ -44,6 +44,21 @@ The time horizon (_T_) was chosen to 2 s after experiments. It was shown that th
 
 The cost function parameters were tuned by try-and-error method. All these parameters are stored in the `src/MPC.h` file. They were tuned in order to reach maximal speed and agressive race style with use of the whole width of the road and breaking before turns. 
 
+__Note: __ To obtain relatively slow, but safe behavior use the following parameters in ```MPC.h```:
+
+```cpp
+#define REF_CTE 0
+#define REF_EPSI 0
+#define REF_V 40
+#define W_CTE 2
+#define W_EPSI 20
+#define W_V 1
+#define W_DELTA 100000
+#define W_A 20
+#define W_DDELTA 0
+#define W_DA 0
+```
+
 ## Hardware 
 
 It was noticed that performance and quality of the controller strongly depend on computational power of your hardware. The MPC involves intense calculations during optimisation, that is why, weak PC can cause some problems due to extra latency. The project was developed and run on an AMD A8-5500 cpu with 16 GB of RAM. Simulator was setted to use 640x480 px resolution and the "Fastest" graphical quality preset. In case of higher resolution or quality of graphics the controller prone to bad behaviour. 
