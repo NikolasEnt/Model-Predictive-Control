@@ -44,7 +44,7 @@ The time horizon (_T_) was chosen to 2 s after experiments. It was shown that th
 
 The cost function parameters were tuned by try-and-error method. All these parameters are stored in the `src/MPC.h` file. They were tuned in order to reach maximal speed and agressive race style with use of the whole width of the road and breaking before turns. 
 
-__Note: __ To obtain relatively slow, but safe behavior use the following parameters in ```MPC.h```:
+__Note:__ To obtain relatively slow, but safe behavior use the following parameters in ```MPC.h```:
 
 ```cpp
 #define REF_CTE 0
